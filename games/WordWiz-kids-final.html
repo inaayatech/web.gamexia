@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Picture Word Connect Game</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=OpenDyslexic&display=swap" />
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'OpenDyslexic', Arial, sans-serif;
+      background-color: #f2f2f2;
+    }
+    /* Cover Page Styles */
+    #coverPage {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      height: 100vh;
+      background-color: #f2f2f2;
+    }
+    #startGameButton {
+      padding: 20px 30px;
+      font-size: 24px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      margin-top: 20px;
+    }
+    #startGameButton:hover {
+      background-color: #45a049;
+    }
+    /* Game Container Styles */
+    #gameContainer {
+      display: none;
+      padding: 20px;
+      text-align: center;
+      min-height: 100vh;
+    }
+    h1 {
+      font-size: 80px;
+      color: hsl(226, 52%, 39%);
+      font-weight: bold;
+      margin: 20px 0;
+      text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+    }
+    #score {
+      font-size: 30px;
+      margin-bottom: 20px;
+      padding: 10px 20px;
+      background: linear-gradient(45deg, #4CAF50, #8BC34A);
+      color: white;
+      border-radius: 20px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      font-weight: bold;
+      display: inline-block;
+    }
+    #word {
+      font-size: 12vw;
+      font-weight: bold;
+      margin: 10px 0;
+    }
+    #images {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+    }
+    img {
+      width: 20%;
+      max-width: 300px;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+      cursor: pointer;
+      transition: transform 0.3s ease;
+      margin: 5px;
+    }
+    img:hover {
+      transform: scale(1.1);
+    }
+    /* Visual feedback styles */
+    .correct {
+      border: 4px solid green !important;
+    }
+    .incorrect {
+      border: 4px solid red !important;
+    }
+    /* Button Styles */
+    #playAgain {
+      margin-top: 20px;
+      padding: 20px 30px;
+      font-size: 20px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      display: none;
+    }
+    #playAgain:hover {
+      background-color: #45a049;
+    }
+    #resetButton {
+      margin: 20px auto;
+      padding: 20px 30px;
+      font-size: 20px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      display: none;
+      width: fit-content;
+    }
+    #resetButton:hover {
+      background-color: #45a049;
+    }
+  </style>
+</head>
+<body>
+  <!-- Cover Page -->
+  <div id="coverPage">
+    <h1>WordWiz Kids</h1>
+    <button id="startGameButton">Start Game</button>
+  </div>
+
+  <!-- Game Container -->
+  <div id="gameContainer">
+    <div id="score" aria-live="polite">Score: 0</div>
+    <div id="word"></div>
+    <div id="images"></div>
+    <button id="playAgain">Play Again</button>
+    <button id="resetButton">Reset Score</button>
+  </div>
+
+  <script>
+    // Global variables
+    let score = parseInt(localStorage.getItem('score')) || 0;
+    let matchedWords = new Set();
+    let usedWords = []; // to ensure each target word is used once per cycle
+    let currentTargetWord = "";
+
+    const words = ['Apple', 'Dog', 'Cat', 'Mountain'];
+
+    const images = [
+      { word: 'Apple', src: '../images/apple.jpg' },
+      { word: 'Dog', src: '../images/dog.jpg' },
+      { word: 'Cat', src: '../images/cat.jpg' },
+      { word: 'Mountain', src: '../images/mountain.jpg' },
+      { word: 'Airplane', src: '../images/airplane.jpg' },
+      { word: 'Ball', src: '../images/ball.jpg' },
+      { word: 'Cake', src: '../images/cake.jpg' },
+      { word: 'Car', src: '../images/car.jpg' },
+      { word: 'Carrot', src: '../images/carrot.jpg' },
+      { word: 'Chair', src: '../images/chair.jpg' },
+      { word: 'Clock', src: '../images/clock.jpg' },
+      { word: 'Cookie', src: '../images/cookie.jpg' },
+      { word: 'Corn', src: '../images/corn.jpg' },
+      { word: 'Cow', src: '../images/cow.jpg' },
+      { word: 'Duck', src: '../images/duck.jpg' },
+      { word: 'Eagle', src: '../images/eagle.jpg' },
+      { word: 'Elephant', src: '../images/elephant.jpg' },
+      { word: 'Fish', src: '../images/fish.jpg' },
+      { word: 'Flamingo', src: '../images/flamingo.jpg' },
+      { word: 'Flower', src: '../images/flower.jpg' },
+      { word: 'Giraffe', src: '../images/giraffe.jpg' },
+      { word: 'Grapes', src: '../images/grapes.jpg' },
+      { word: 'Icecream', src: '../images/icecream.jpg' },
+      { word: 'Lion', src: '../images/lion.jpg' },
+      { word: 'Mushroom', src: '../images/mushroom.jpg' },
+      { word: 'Owl', src: '../images/owl.jpg' },
+      { word: 'Panda', src: '../images/panda.jpg' },
+      { word: 'Pencil', src: '../images/pencil.jpg' },
+      { word: 'Penguin', src: '../images/penguin.jpg' },
+      { word: 'Pineapple', src: '../images/pineapple.jpg' },
+      { word: 'Pizza', src: '../images/pizza.jpg' },
+      { word: 'Popcorn', src: '../images/popcorn.jpg' },
+      { word: 'Pumpkin', src: '../images/pumpkin.jpg' },
+      { word: 'Scissor', src: '../images/scissor.jpg' },
+      { word: 'Sheep', src: '../images/sheep.jpg' },
+      { word: 'Shoe', src: '../images/shoe.jpg' },
+      { word: 'Strawberry', src: '../images/strawberry.jpg' },
+      { word: 'TeddyBear', src: '../images/teddybear.jpg' },
+      { word: 'Tiger', src: '../images/tiger.jpg' },
+      { word: 'Tomato', src: '../images/tomato.jpg' },
+      { word: 'Tree', src: '../images/tree.jpg' },
+      { word: 'Umbrella', src: '../images/umbrella.jpg' },
+      { word: 'Watermelon', src: '../images/watermelon.jpg' },
+      { word: 'Zebra', src: '../images/zebra.jpg' }
+    ];
+
+    // Fisher–Yates shuffle for true randomness.
+    function shuffleArray(array) {
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+      return array;
+    }
+
+    function sleep(ms) {
+      return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    function speak(text) {
+      return new Promise(resolve => {
+        let utterance = new SpeechSynthesisUtterance(text);
+        utterance.rate = 0.8;
+        utterance.onend = resolve;
+        speechSynthesis.speak(utterance);
+      });
+    }
+
+    // Plays the cover page audio instructions.
+    async function playCoverAudio() {
+      speechSynthesis.cancel();
+      let message = "Welcome to WordWiz Kids! Select the correct picture to match the word. Click on Start Game to begin";
+      await speak(message);
+    }
+
+    // Auto-play cover audio when the page loads.
+    window.addEventListener('load', () => {
+      playCoverAudio();
+    });
+
+    async function spellWord(word) {
+      const wordElement = document.getElementById('word');
+      wordElement.innerHTML = '';
+      speechSynthesis.cancel();
+
+      for (let letter of word) {
+        wordElement.innerHTML += letter;
+        await speak(letter);
+        await sleep(500);
+      }
+
+      await sleep(1000);
+      // Speak the complete word.
+      await speak(word);
+    }
+
+    function resetScore() {
+      score = 0;
+      localStorage.setItem('score', score);
+      document.getElementById('score').innerText = `Score: ${score}`;
+      matchedWords.clear();
+      document.getElementById('playAgain').style.display = 'none';
+      document.getElementById('resetButton').style.display = 'none';
+      setupGame();
+    }
+
+    // New game round: choose a target word from the words array (avoiding immediate repetition),
+    // then find its corresponding image and three distractors.
+    function setupGame() {
+      // Reset used words if all have been used.
+      if (usedWords.length === words.length) {
+        usedWords = [];
+      }
+      // Choose a target word that hasn't been used this cycle.
+      let availableWords = words.filter(word => !usedWords.includes(word));
+      let targetWord = availableWords[Math.floor(Math.random() * availableWords.length)];
+      usedWords.push(targetWord);
+      currentTargetWord = targetWord;
+
+      // Find the correct image object.
+      let correctImage = images.find(item => item.word.toLowerCase() === targetWord.toLowerCase());
+
+      // Select distractor images (ensure they are not the target image).
+      let distractors = images.filter(item => item.word.toLowerCase() !== targetWord.toLowerCase());
+      distractors = shuffleArray([...distractors]).slice(0, 3);
+
+      // Combine the correct image with distractors and shuffle the order.
+      let roundImages = shuffleArray([correctImage, ...distractors]);
+
+      // Display images.
+      const imagesContainer = document.getElementById('images');
+      imagesContainer.innerHTML = '';
+      document.getElementById('playAgain').style.display = 'none';
+      document.getElementById('resetButton').style.display = 'block';
+
+      // Spell out the target word.
+      spellWord(targetWord);
+
+      roundImages.forEach((image) => {
+        let imgElement = document.createElement('img');
+        imgElement.src = image.src;
+        imgElement.alt = image.word;
+        imgElement.setAttribute('aria-label', `Image of ${image.word}`);
+        imgElement.tabIndex = 0;
+        imgElement.addEventListener('click', () => {
+          checkAnswer(image.word, imgElement);
+          imgElement.focus();
+        });
+        imagesContainer.appendChild(imgElement);
+      });
+    }
+
+    async function checkAnswer(selectedWord, imgElement) {
+      if (matchedWords.has(selectedWord)) {
+        await speak(`You already matched this ${selectedWord}, play again`);
+        return;
+      }
+      if (selectedWord.toLowerCase() === currentTargetWord.toLowerCase()) {
+        if (imgElement) {
+          imgElement.classList.add('correct');
+        }
+        await speak(`Fantastic! Good job, you selected ${selectedWord}. Let's try the next one.`);
+        score += 10;
+        localStorage.setItem('score', score);
+        matchedWords.add(selectedWord);
+        document.getElementById('score').innerText = `Score: ${score}`;
+        await sleep(1000);
+        setupGame();
+      } else {
+        if (imgElement) {
+          imgElement.classList.add('incorrect');
+        }
+        await speak('Oops! Try again');
+        await sleep(2000);
+        if (imgElement) {
+          imgElement.classList.remove('incorrect');
+        }
+      }
+    }
+
+    document.getElementById('score').innerText = `Score: ${score}`;
+
+    // When "Start Game" is clicked, hide the cover page and show the game.
+    document.getElementById('startGameButton').addEventListener('click', () => {
+      document.getElementById('coverPage').style.display = 'none';
+      document.getElementById('gameContainer').style.display = 'block';
+      setupGame();
+    });
+
+    document.getElementById('playAgain').addEventListener('click', setupGame);
+  </script>
+</body>
+</html>

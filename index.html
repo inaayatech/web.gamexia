@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gamexia</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    /* Custom Font */
+    @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
+    body {
+      font-family: 'Roboto', sans-serif;
+    }
+    /* Custom Colors */
+    .bg-light-grey {
+      background-color: #f3f4f6;
+    }
+    .text-dark-grey {
+      color: #1f2937;
+    }
+    .btn-primary {
+      background-color: #3b82f6;
+      color: white;
+      padding: 12px 24px;
+      border-radius: 8px;
+      text-transform: uppercase;
+      font-weight: 500;
+      letter-spacing: 1px;
+    }
+    .btn-primary:hover {
+      background-color: #2563eb;
+    }
+    /* Smooth Scroll */
+    html {
+      scroll-behavior: smooth;
+    }
+    /* Initially hide the login modal */
+    #loginForm {
+      display: none;
+      z-index: 2100; /* Ensure modal appears above cover page */
+    }
+    /* Header Styles */
+    header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      z-index: 1000;
+      background: #f5f5f5;
+      padding: 10px 0;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    body {
+      padding-top: 80px; /* Adjust according to your header height */
+    }
+    /* Active Navigation Link */
+   /* Active Navigation Link with Highlight Box */
+header nav ul li a.active {
+  background-color: #C08580; /* Matches the login button color */
+  color: white;             /* Text becomes white for contrast */
+  padding: 8px 16px;        /* Adds spacing around the text */
+  border-radius: 8px;       /* Rounds the corners to match the button */
+  transition: background-color 0.3s ease;
+}
+
+    
+    /* Cover Page Styles */
+    #coverPage {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 2000;
+      background: #111;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      text-align: center;
+      color: white;
+      transition: opacity 0.5s ease, visibility 0.5s ease;
+      opacity: 1;
+      visibility: visible;
+    }
+    #coverPage.hide {
+      opacity: 0;
+      visibility: hidden;
+    }
+    #coverPage button {
+      background-color: #C1876B;
+      color: white;
+      padding: 12px 24px;
+      border-radius: 8px;
+      text-transform: uppercase;
+      font-weight: 500;
+      letter-spacing: 1px;
+      transition: background-color 0.3s ease;
+    }
+    #coverPage button:hover {
+      background-color: #A56A5B;
+    }
+    /* Read Aloud & Pause Button Styles (Matching the Login Button) */
+    .read-btn, .pause-btn {
+      background-color: #C1876B;
+      color: white;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-weight: 500;
+      letter-spacing: 1px;
+      margin: 0.5rem;
+      cursor: pointer;
+      transition: background-color 0.3s ease, transform 0.2s ease;
+      border: none;
+    }
+    .read-btn:hover, .pause-btn:hover {
+      background-color: #A56A5B;
+      transform: translateY(-2px);
+    }
+  </style>
+</head>
+
+<body class="bg-gray-100">
+  <!-- Cover Page (Login Landing) -->
+  <div id="coverPage">
+    <h1 class="text-8xl font-bold mb-4">Gamexia</h1>
+    <p class="text-4xl mb-8 text-green-500">Beyond the text, a world of possibilities!</p>
+    <!-- Clicking this Login button opens the login modal -->
+    <button onclick="showLoginForm()">Login</button>
+  </div>
+
+  <!-- Header Section -->
+  <header class="bg-light-grey text-dark-grey py-6 shadow-lg">
+    <div class="container mx-auto flex items-center justify-between">
+      <!-- Website Name -->
+      <div class="text-4xl font-semibold">G a m e x i a</div>
+      <!-- Navigation Menu -->
+      <nav>
+        <ul class="flex space-x-8 text-lg">
+          <li><a href="#about" class="hover:text-blue-500 transition-colors">About Us</a></li>
+          <li><a href="#games" class="hover:text-blue-500 transition-colors">Games</a></li>
+          <li><a href="#stories" class="hover:text-blue-500 transition-colors">Story Books</a></li>
+          <li><a href="#teachers-training" class="hover:text-blue-500 transition-colors">Teacher's Training</a></li>
+          <li><a href="#contact us" class="hover:text-blue-500 transition-colors">Contact Us</a></li>
+        </ul>
+      </nav>
+      <!-- Header Login Button (optional duplicate) -->
+      <div>
+        <button onclick="showLoginForm()" class="bg-[#C08580] text-white font-semibold py-3 px-6 rounded-lg hover:bg-[#B0726A] transition-colors">
+          Log In
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Login Form Modal (Hidden Initially) -->
+  <div id="loginForm" class="flex justify-center items-center min-h-screen fixed inset-0 bg-gray-800 bg-opacity-50" onclick="hideLoginForm(event)">
+    <div class="bg-white p-8 rounded-lg shadow-lg w-96" onclick="event.stopPropagation()">
+      <h2 class="text-3xl font-bold text-center mb-6">Login</h2>
+      <!-- Name Input -->
+      <div class="mb-4">
+        <label for="name" class="block text-lg mb-2">Name</label>
+        <input type="text" id="name" name="name" required class="w-full p-3 border border-gray-300 rounded-lg" placeholder="Enter your first name" />
+      </div>
+      <!-- User Type Selection -->
+      <div class="mb-4">
+        <label for="userType" class="block text-lg mb-2">Select User Type</label>
+        <select id="userType" name="userType" class="w-full p-3 border border-gray-300 rounded-lg">
+          <option value="student">Student</option>
+          <option value="parent">Parent</option>
+        </select>
+      </div>
+      <!-- Login Form -->
+      <form action="#" method="POST" class="mt-6" onsubmit="loginSuccess(event)">
+        <!-- Email Input -->
+        <div class="mb-4">
+          <label for="email" class="block text-lg mb-2">Email</label>
+          <input type="email" id="email" name="email" required class="w-full p-3 border border-gray-300 rounded-lg" placeholder="Enter your email" />
+        </div>
+        <!-- Password Input -->
+        <div class="mb-6">
+          <label for="password" class="block text-lg mb-2">Password</label>
+          <input type="password" id="password" name="password" required class="w-full p-3 border border-gray-300 rounded-lg" placeholder="Enter your password" />
+        </div>
+        <!-- Submit Button -->
+        <button type="submit" class="bg-[#C1876B] text-white py-3 px-6 rounded-lg hover:bg-[#A56A5B] transition-colors w-full">
+          Log In
+        </button>
+      </form>
+      <!-- Forgot Password & Sign Up -->
+      <div class="text-center mt-4">
+        <a href="#" class="text-blue-500">Forgot your password?</a>
+      </div>
+      <div class="text-center mt-2">
+        <p>Don't have an account? <a href="#" class="text-blue-500">Sign Up</a></p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // When the page loads, check if the user is logged in in the current session.
+    document.addEventListener("DOMContentLoaded", function() {
+      if (sessionStorage.getItem('loggedIn') === 'true') {
+        document.getElementById("coverPage").style.display = "none";
+      }
+      initNavObserver();
+    });
+
+    // Also check on pageshow (e.g. when using the Back button)
+    window.onpageshow = function(event) {
+      if (sessionStorage.getItem('loggedIn') === 'true') {
+        document.getElementById("coverPage").style.display = "none";
+      }
+    };
+
+    // Intersection Observer for nav link highlighting.
+    function initNavObserver() {
+      const sections = document.querySelectorAll("section[id]");
+      const navLinks = document.querySelectorAll("header nav ul li a");
+      const observerOptions = { threshold: 0.5 };
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          const id = entry.target.getAttribute("id");
+          const navLink = document.querySelector(`header nav ul li a[href="#${id}"]`);
+          if (entry.isIntersecting) {
+            navLinks.forEach(link => link.classList.remove("active"));
+            if (navLink) {
+              navLink.classList.add("active");
+            }
+          }
+        });
+      }, observerOptions);
+      sections.forEach(section => observer.observe(section));
+    }
+
+    // Show the login modal.
+    function showLoginForm() {
+      document.getElementById('loginForm').style.display = 'flex';
+    }
+
+    // Hide the login modal.
+    function hideLoginForm(event) {
+      if (event) {
+        event.preventDefault();
+      }
+      document.getElementById('loginForm').style.display = 'none';
+    }
+
+    // Simulate a successful login and speak a welcome message.
+    function loginSuccess(event) {
+      event.preventDefault();
+      // Get the user's first name from the name input.
+      const name = document.getElementById('name').value;
+      // Create a welcome message using only the first name.
+      const welcomeMsg = new SpeechSynthesisUtterance(`Welcome, ${name}`);
+      window.speechSynthesis.speak(welcomeMsg);
+      
+      // Set sessionStorage flag so that in this session the cover page stays hidden.
+      sessionStorage.setItem('loggedIn', 'true');
+      hideLoginForm();
+      enterSite();
+    }
+
+    // Fade out and hide the cover page.
+    function enterSite() {
+      const coverPage = document.getElementById("coverPage");
+      coverPage.classList.add("hide");
+      setTimeout(() => {
+        coverPage.style.display = "none";
+      }, 500);
+    }
+
+    // Function to read aloud the content of a given section.
+    function readSection(sectionId) {
+      // Cancel any ongoing speech.
+      window.speechSynthesis.cancel();
+      const section = document.getElementById(sectionId);
+      if (section) {
+        const text = section.innerText;
+        const utterance = new SpeechSynthesisUtterance(text);
+        window.speechSynthesis.speak(utterance);
+      }
+    }
+
+    // Function to pause (or cancel) any ongoing speech.
+    function pauseReading() {
+      window.speechSynthesis.cancel();
+    }
+  </script>
+
+  <!-- Hero Section -->
+  <section id="about" class="bg-yellow-100 text-white py-20 text-center" style="background-image: url('images/design-background.JPG'); background-size: cover; background-position: center;">
+    <div class="container mx-auto">
+      <h2 class="text-5xl font-bold mb-4 text-dark-grey">Beyond the text, a world of possibilities!</h2>
+      <!-- Read and Pause buttons for this section -->
+      <button class="read-btn" onclick="readSection('about')">🔊 Read Aloud</button>
+      <button class="pause-btn" onclick="pauseReading()">⏸️ Pause</button>
+      <p class="text-xl mb-8 text-gray-800"></p>
+    </div>
+  </section>
+
+  <!-- About Us Section -->
+  <section id="learn-more" class="bg-white py-16">
+    <div class="container mx-auto text-center px-4">
+      <h3 class="text-4xl font-semibold text-dark-grey mb-6">About Us</h3>
+      <button class="read-btn" onclick="readSection('learn-more')">🔊 Read Aloud</button>
+      <button class="pause-btn" onclick="pauseReading()">⏸️ Pause</button>
+      <div class="text-2xl text-gray-600 mb-8 max-w-8xl mx-auto leading-relaxed">
+        <p><strong>Gamexia</strong> is an after-school activity program designed to make learning more fun and engaging, improving retention and understanding.</p>
+        <p>Dyslexia is a neurobiological condition that affects <strong>1 in 5 children worldwide</strong>. It causes difficulties with accurate and fluent word recognition, spelling, and decoding. Traditional learning environments often fail to meet their needs.</p>
+        <p>For most literate individuals, reading happens automatically. A popular internet message illustrates how easily people read even when letters are scrambled:</p>
+        <blockquote class="bg-gray-100 p-4 italic border-l-4 border-blue-500 text-gray-700">
+          "It deosn’t mttaer in waht oredr the ltteers in a wrod are, the olny iprmoetnt tihng is taht the frist and lsat ltteer be at the rghit pclae. The rset can be a toatl mses and you can sitll raed it wouthit porbelm."
+        </blockquote>
+        <p>Dyslexia disrupts this automatic process at a fundamental level, and that is where <strong>GAMEXIA</strong> comes in.</p>
+        <p>Our afterschool program provides a structured, engaging, and personalized learning experience that helps bridge this gap.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Games Section -->
+  <section id="games" class="bg-light-grey py-16">
+    <div class="container mx-auto text-center">
+      <h3 class="text-4xl font-bold text-dark-grey mb-6">Games</h3>
+      <button class="read-btn" onclick="readSection('games')">🔊 Read Aloud</button>
+      <button class="pause-btn" onclick="pauseReading()">⏸️ Pause</button>
+      <p class="text-2xl text-gray-600 mb-8 max-w-8xl mx-auto">
+        The Games Section offers interactive, dyslexia-friendly learning games that enhance literacy and cognitive skills through multi-sensory engagement. Featuring games like WordSnap! and Picture Word Connect, it includes audio-visual aids, adaptive difficulty, and motivational feedback to make learning fun and effective.
+      </p>
+      <div class="flex flex-wrap justify-center gap-8">
+
+        <!-- Game 1 -->
+        <div class="bg-white w-full max-w-2xl aspect-square p-6 rounded-lg shadow-md flex flex-col justify-between">
+          <img src="images/game.jpg" alt="Word Wiz Kids" class="w-full h-[60%] object-cover rounded-lg">
+          <h4 class="text-3xl font-bold text-dark-grey mt-4">Word Wiz Kids</h4>
+          <p class="text-xl text-gray-600">
+            Picture Word Connect empowers dyslexic kids through visual-auditory word association. With a dyslexia-friendly design, text-to-speech, interactive matching, and engaging animations, it makes learning fun while strengthening phonemic awareness.
+          </p>
+           <a href="games/WordWiz-kids-final.html" class="bg-[#C1876B] text-white text-2xl font-bold py-2 px-4 rounded-md hover:bg-[#A56A5B] transition-colors">
+            Play Now
+          </a>
+        </div>
+
+         <!-- Game 2 -->
+        <div class="bg-white w-full max-w-2xl aspect-square p-6 rounded-lg shadow-md flex flex-col justify-between">
+          <img src="images/ww kids.jpg" alt="WordSnap!" class="w-full h-[60%] object-cover rounded-lg">
+          <h4 class="text-3xl font-bold text-dark-grey mt-4">WordSnap!</h4>
+          <p class="text-xl text-gray-600">
+            WordSnap is a drag-and-drop game that strengthens spelling and letter recognition for dyslexic kids. With dyslexia-friendly fonts, audio feedback, adaptive difficulty, and a rewarding score system, it makes learning fun and effective.
+          </p>
+          <a href="games/word-snap-game-final.html" class="bg-[#C1876B] text-white text-2xl font-bold py-2 px-4 rounded-md hover:bg-[#A56A5B] transition-colors">
+            Play Now
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Stories Section -->
+  <section id="stories" class="bg-light-grey py-16">
+    <div class="container mx-auto text-center">
+      <h3 class="text-4xl font-semibold text-dark-grey mb-6">Stories</h3>
+      <button class="read-btn" onclick="readSection('stories')">🔊 Read Aloud</button>
+      <button class="pause-btn" onclick="pauseReading()">⏸️ Pause</button>
+      <p class="text-2xl text-gray-600 mb-8 max-w-8xl mx-auto">
+        Make reading fun with our interactive picture storybooks. Sight words and high-frequency words help children improve reading fluency by reducing decoding struggles and enhancing comprehension.
+      </p>
+      <div class="mb-12">
+        <h4 class="text-4xl font-semibold text-dark-grey mb-6">🎧 Listen to Story Books</h4>
+        <p class="text-2xl text-gray-600 mb-8 max-w-2xl mx-auto">
+          Immerse yourself in engaging stories that bring characters and adventures to life. Perfect for auditory learners!
+        </p>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-12 justify-center">
+          <div class="bg-white p-8 rounded-lg shadow-md flex flex-col items-center">
+           <img src="flipbook/MAL/cover.jpg" alt="Max and Lily" class="w-full h-48 object-cover rounded-lg mb-4">
+            <h4 class="text-4xl font-bold text-dark-grey mb-4">Max and Lily</h4>
+            <p class="text-2xl text-gray-600 mb-4 text-center">
+              Listen to the magical story of Max and Lily, designed to enhance listening and comprehension skills.
+            </p>
+            <a href="story books\max and lily.html" class="bg-[#C1876B] text-white py-3 px-6 rounded-lg hover:bg-[#A56A5B] transition-colors">
+              Listen Now
+            </a>
+          </div>
+          <div class="bg-white p-8 rounded-lg shadow-md flex flex-col items-center">
+            <img src="flipbook\MJ\cover.jpg" alt="Max and Lily in Magical Land" class="w-full h-48 object-cover rounded-lg mb-4">
+            <h4 class="text-4xl font-bold text-dark-grey mb-4">Max and Lily in Magical Land</h4>
+            <p class="text-2xl text-gray-600 mb-4 text-center">
+              Enjoy an immersive audio adventure with Max and Lily in their magical journey.
+            </p>
+            <a href="story books\magical journey of max and lily.html" class="bg-[#C1876B] text-white py-3 px-6 rounded-lg hover:bg-[#A56A5B] transition-colors">
+              Listen Now
+            </a>
+          </div>
+        </div>
+      </div>
+      <div class="mb-12">
+        <h4 class="text-4xl font-semibold text-dark-grey mb-6">📖 Read the Story Books</h4>
+        <p class="text-2xl text-gray-600 mb-8 max-w-2xl mx-auto">
+          Explore our collection of interactive picture books designed to enhance reading skills through sight words and engaging visuals.
+        </p>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-12 justify-center">
+          <div class="bg-white p-8 rounded-lg shadow-md flex flex-col items-center">
+            <img src="flipbook/MAL/cover.jpg" alt="Max and Lily" class="w-full h-48 object-cover rounded-lg mb-4">
+            <h4 class="text-4xl font-bold text-dark-grey mb-4">Max and Lily</h4>
+            <p class="text-2xl text-gray-600 mb-4 text-center">
+              A fun way to learn reading with sight and high-frequency words.
+            </p>
+            <a href="story books\Max and Lily- Read yourself.html" class="bg-[#C1876B] text-white py-3 px-6 rounded-lg hover:bg-[#A56A5B] transition-colors" target="_blank">
+              Read Now
+            </a>
+          </div>
+          <div class="bg-white p-8 rounded-lg shadow-md flex flex-col items-center">
+            <img src="flipbook/MJ/cover.jpg" alt="Max and Lily in Magical Land" class="w-full h-48 object-cover rounded-lg mb-4">
+            <h4 class="text-4xl font-bold text-dark-grey mb-4">Max and Lily in Magical Land</h4>
+            <p class="text-2xl text-gray-600 mb-4 text-center">
+              A fun way to learn reading with sight and high-frequency words.
+            </p>
+            <a href="story books\Magical journey of Max and Lily- Read yourself.html" class="bg-[#C1876B] text-white py-3 px-6 rounded-lg hover:bg-[#A56A5B] transition-colors" target="_blank">
+              Read Now
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Teacher's Training Section -->
+  <section id="teachers-training" class="bg-light-grey py-16">
+    <div class="container mx-auto text-center">
+      <h3 class="text-4xl font-bold text-dark-grey mb-6">Teacher's Training</h3>
+      <button class="read-btn" onclick="readSection('teachers-training')">🔊 Read Aloud</button>
+      <button class="pause-btn" onclick="pauseReading()">⏸️ Pause</button>
+      <p class="text-2xl text-gray-600 mb-8 max-w-8xl mx-auto"></p>
+      <div class="bg-white max-w-4xl mx-auto p-8 rounded-lg shadow-md">
+        <p class="text-2xl text-gray-600 text-left mb-4">
+          Teacher training is <strong>crucial</strong> in supporting dyslexic children, as it equips educators with the skills to create an inclusive and effective learning environment. Here’s why it matters:
+        </p>
+        <ul class="text-2xl text-gray-600 text-left list-disc pl-6">
+          <li><strong>Early Identification & Intervention</strong> – Trained teachers can spot early signs of dyslexia and provide timely, targeted support.</li>
+          <li><strong>Multisensory Teaching Techniques</strong> – Effective training introduces methods like <em>Orton-Gillingham</em> and structured literacy to enhance learning.</li>
+          <li><strong>Boosting Student Confidence</strong> – With the right strategies, teachers can <em>reduce frustration</em>, foster <em>self-esteem</em>, and make learning enjoyable.</li>
+          <li><strong>Adapting Curriculum & Assessments</strong> – Teachers learn how to modify lessons, use assistive technology, and offer alternative evaluation methods.</li>
+          <li><strong>Parental & Peer Collaboration</strong> – Training encourages <em>stronger communication</em> between teachers, parents, and specialists to ensure consistent support.</li>
+        </ul>
+        <p class="text-2xl text-gray-600 text-left mt-4">
+          Empowered teachers create <strong>empowered learners</strong>, making training <strong>a key pillar in dyslexia-friendly education</strong>.
+        </p>
+      </div>
+      <div class="flex flex-wrap justify-center gap-8 mt-12">
+        <div class="bg-white w-full max-w-2xl aspect-square p-6 rounded-lg shadow-md flex flex-col justify-between">
+          <img src="Teachers training\cover.jpg" alt="Teacher's Training" class="w-full h-[60%] object-cover rounded-lg">
+          <h4 class="text-3xl font-bold text-dark-grey mt-4">Video- Teacher's Training</h4>
+          <p class="text-xl text-gray-600">Play video to know more.</p>
+          <a href="Teachers training\Teacher's training.mp4" class="bg-[#C1876B] text-white text-2xl font-bold py-2 px-4 rounded-md hover:bg-[#A56A5B] transition-colors">
+            Play Now
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Key Features Section -->
+  <section id="key-features" class="bg-light-grey py-16">
+    <div class="container mx-auto text-center">
+      <h3 class="text-3xl font-semibold text-dark-grey mb-6">Key Features</h3>
+      <button class="read-btn" onclick="readSection('key-features')">🔊 Read Aloud</button>
+      <button class="pause-btn" onclick="pauseReading()">⏸️ Pause</button>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-12">
+        <div class="bg-white p-8 rounded-lg shadow-md">
+          <h4 class="text-xl font-bold text-dark-grey mb-4">Multimodal Learning Environment</h4>
+          <p class="text-gray-600">o	The combination of interactive games, storybooks, and teacher training sections provides a well-rounded approach to learning, ensuring that the content is accessible in multiple formats (visual, auditory, interactive).</p>
+        </div>
+        <div class="bg-white p-8 rounded-lg shadow-md">
+          <h4 class="text-xl font-bold text-dark-grey mb-4">Auditory feedback</h4>
+          <p class="text-gray-600">o	The “Read Aloud” feature isn’t just a nice-to-have—it’s a thoughtful touch that directly addresses the challenges dyslexic kids might face, reinforcing learning through multiple senses.</p>
+        </div>
+        <div class="bg-white p-8 rounded-lg shadow-md">
+          <h4 class="text-xl font-bold text-dark-grey mb-4">Real-time feedback and results</h4>
+          <p class="text-gray-600">Our real-time results deliver weekly feedback, empowering students and teachers to monitor progress and adjust on the fly.
+Personalized data pinpoints improvement areas, recommends tailored activities, and keeps learners engaged while maximizing educators' impact.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  
+<!-- Footer Section -->
+<footer class="bg-[#A56A5B] text-white py-10 mt-10">
+  <div class="container mx-auto flex flex-col md:flex-row justify-between items-center px-6">
+    <!-- Logo & Tagline -->
+    <div class="text-center md:text-left mb-6 md:mb-0">
+      <h2 class="text-3xl font-bold">Join the Gamexia Family</h2>
+      <p class="text-white">Learn to beat Dyslexia by joining Gamexia!</p> Sign up today to get started.</p>
+    </div>
+    
+    <!-- Contact Information -->
+    <div class="text-lg text-center md:text-left">
+      <p class="text-white">Address: 123 Gamexia Street, Learning City, LX 45678</p>
+      <p class="text-white">Phone: +91 9604274017</p>
+      <p class="text-white">Email: gamexia@gmail.com</p>
+    </div>
+    
+    <!-- Social Media Icons -->
+    <div class="flex space-x-4 mt-6 md:mt-0">
+      <a href="#" class="text-white hover:text-blue-400 transition-colors">
+        <i class="fab fa-facebook fa-lg"></i>
+      </a>
+      <a href="#" class="text-white hover:text-blue-400 transition-colors">
+        <i class="fab fa-twitter fa-lg"></i>
+      </a>
+      <a href="#" class="text-white hover:text-blue-400 transition-colors">
+        <i class="fab fa-instagram fa-lg"></i>
+      </a>
+      <a href="#" class="text-white hover:text-blue-400 transition-colors">
+        <i class="fab fa-linkedin fa-lg"></i>
+      </a>
+    </div>
+  </div>
+  
+  <!-- Copyright Section -->
+  <div class="text-center text-gray-300 text-sm mt-6">
+    &copy; 2025 Gamexia. All rights reserved.
+  </div>
+</footer>
+
+<!-- FontAwesome for Social Icons -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/js/all.min.js"></script>
+
+
+
+    </div>
+  </section>
+</body>
+</html>

@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Magical Journey of Sam and Lena</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=OpenDyslexic&display=swap');
+
+        body {
+            font-family: 'OpenDyslexic', Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #FAF3DD;
+        }
+
+        .flipbook {
+            width: 80%;
+            margin: 50px auto;
+            display: flex;
+            justify-content: center;
+            perspective: 1500px;
+        }
+
+        .book {
+            display: flex;
+            flex-wrap: wrap;
+            width: 600px;
+            height: 400px;
+            position: relative;
+        }
+
+        .page {
+            width: 50%;
+            height: 100%;
+            background-color: white;
+            box-sizing: border-box;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border: 1px solid #ccc;
+            transition: opacity 0.5s;
+        }
+
+        .page img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .page h2 {
+            font-size: 32px;
+            font-weight: bold;
+            margin: 0;
+            text-align: center;
+            letter-spacing: 0.1em;
+            line-height: 1.5;
+        }
+
+        .highlight {
+            background-color: yellow;
+            padding: 5px;
+        }
+
+        .arrow {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 24px;
+            color: #333;
+            cursor: pointer;
+            z-index: 2;
+        }
+
+        .arrow-left {
+            left: 10px;
+        }
+
+        .arrow-right {
+            right: 10px;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="flipbook">
+        <div class="book" id="book">
+            <!-- Pages go here -->
+        </div>
+    </div>
+
+    <script>
+        const pages = [
+            { img: "../flipbook/MJ/cover.jpg", text: "The Magical Journey of Max and Lily" },
+            { img: "../flipbook/MJ/max.jpg", text: "This is Max." },
+            { img: "../flipbook/MJ/lily.jpg", text: "This is Lily." },
+            { img: "../flipbook/MJ/forest.jpg", text: "They find a secret forest." },
+            { img: "../flipbook/MJ/glowing_door.jpg", text: "A glowing door appears!" },
+            { img: "../flipbook/MJ/castle.jpg", text: "Behind the door is a magical castle." },
+            { img: "../flipbook/MJ/dragon.jpg", text: "A friendly dragon guards the castle." },
+            { img: "../flipbook/MJ/treasure.jpg", text: "Max and Lily find a hidden treasure!" },
+            { img: "../flipbook/MJ/home.jpg", text: "They return home with a magical story." }
+        ];
+
+        let currentPage = 0;
+        const book = document.getElementById("book");
+
+        function renderPage() {
+            book.innerHTML = '';
+            const page = pages[currentPage];
+            book.innerHTML = `
+                <div class="page"><img src="${page.img}" alt="Image"></div>
+                <div class="page">
+                    <h2 id="text-content">${page.text}</h2>
+                    ${currentPage > 0 ? '<div class="arrow arrow-left" onclick="prevPage()">&#8592;</div>' : ''}
+                    ${currentPage < pages.length - 1 ? '<div class="arrow arrow-right" onclick="nextPage()">&#8594;</div>' : ''}
+                </div>
+            `;
+            speakText(page.text);
+        }
+
+        function nextPage() {
+            if (currentPage < pages.length - 1) {
+                currentPage++;
+                renderPage();
+            }
+        }
+
+        function prevPage() {
+            if (currentPage > 0) {
+                currentPage--;
+                renderPage();
+            }
+        }
+
+        function speakText(text) {
+            const textElement = document.getElementById("text-content");
+            const words = text.split(" ");
+            textElement.innerHTML = words.map(word => `<span>${word}</span>`).join(" ");
+            
+            const utterance = new SpeechSynthesisUtterance();
+            utterance.rate = 0.5; // Slower speech for better comprehension
+            utterance.text = text;
+
+            const voices = speechSynthesis.getVoices();
+            utterance.voice = voices.find(voice => voice.name.includes("Female")) || voices[0];
+            
+            let index = 0;
+            utterance.onboundary = (event) => {
+                if (event.name === "word") {
+                    const spans = textElement.getElementsByTagName("span");
+                    if (index < spans.length) {
+                        spans[index].classList.add("highlight");
+                        if (index > 0) spans[index - 1].classList.remove("highlight");
+                        index++;
+                    }
+                }
+            };
+            
+            speechSynthesis.speak(utterance);
+        }
+
+        renderPage();
+    </script>
+</body>
+</html>
