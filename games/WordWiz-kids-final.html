@@ -145,8 +145,7 @@
     let matchedWords = new Set();
     let usedWords = []; // to ensure each target word is used once per cycle
     let currentTargetWord = "";
-
-    const words = ['Apple', 'Dog', 'Cat', 'Mountain'];
+    let isSpeaking = false; // to block clicks during speech
 
     const images = [
       { word: 'Apple', src: '../images/apple.jpg' },
@@ -195,6 +194,9 @@
       { word: 'Zebra', src: '../images/zebra.jpg' }
     ];
 
+    // Initialize words array AFTER images array
+    let words = [];
+
     // Fisher–Yates shuffle for true randomness.
     function shuffleArray(array) {
       for (let i = array.length - 1; i > 0; i--) {
@@ -210,9 +212,13 @@
 
     function speak(text) {
       return new Promise(resolve => {
+        isSpeaking = true;
         let utterance = new SpeechSynthesisUtterance(text);
         utterance.rate = 0.8;
-        utterance.onend = resolve;
+        utterance.onend = () => {
+          isSpeaking = false;
+          resolve();
+        };
         speechSynthesis.speak(utterance);
       });
     }
@@ -220,13 +226,16 @@
     // Plays the cover page audio instructions.
     async function playCoverAudio() {
       speechSynthesis.cancel();
-      let message = "Welcome to WordWiz Kids! Select the correct picture to match the word. Click on Start Game to begin";
+      let message = "Welcome to WordWiz Kids! Select the correct picture to match the word. Click on Start Game to begin.";
       await speak(message);
     }
 
-    // Auto-play cover audio when the page loads.
+    // Auto-play cover audio when the page loads, AFTER setting words array.
     window.addEventListener('load', () => {
+      words = images.map(img => img.word);
+      console.log("Words loaded:", words);
       playCoverAudio();
+      document.getElementById('score').innerText = `Score: ${score}`;
     });
 
     async function spellWord(word) {
@@ -268,6 +277,8 @@
       usedWords.push(targetWord);
       currentTargetWord = targetWord;
 
+      matchedWords.clear(); // clear previous matched words for this round
+
       // Find the correct image object.
       let correctImage = images.find(item => item.word.toLowerCase() === targetWord.toLowerCase());
 
@@ -292,53 +303,69 @@
         imgElement.src = image.src;
         imgElement.alt = image.word;
         imgElement.setAttribute('aria-label', `Image of ${image.word}`);
-        imgElement.tabIndex = 0;
-        imgElement.addEventListener('click', () => {
-          checkAnswer(image.word, imgElement);
-          imgElement.focus();
-        });
+        imgElement.tabIndex = 0; // keyboard focusable
         imagesContainer.appendChild(imgElement);
+
+        imgElement.addEventListener('click', async () => {
+          if (isSpeaking) return; // prevent interaction during speech
+
+          if (image.word.toLowerCase() === currentTargetWord.toLowerCase()) {
+            if (!matchedWords.has(image.word)) {
+              matchedWords.add(image.word);
+              score++;
+              localStorage.setItem('score', score);
+              document.getElementById('score').innerText = `Score: ${score}`;
+
+              // Show green border for correct choice
+              imgElement.classList.add('correct');
+              await speak('Correct! Well done.');
+
+              // Next round
+              await sleep(500);
+              setupGame();
+            }
+          } else {
+            // Show red border briefly for wrong choice
+            imgElement.classList.add('incorrect');
+            await speak('Try again.');
+            await sleep(500);
+            imgElement.classList.remove('incorrect');
+          }
+        });
+
+        // Accessibility: keyboard enter key to select
+        imgElement.addEventListener('keydown', async (event) => {
+          if (event.key === 'Enter' || event.key === ' ') {
+            event.preventDefault();
+            imgElement.click();
+          }
+        });
       });
     }
 
-    async function checkAnswer(selectedWord, imgElement) {
-      if (matchedWords.has(selectedWord)) {
-        await speak(`You already matched this ${selectedWord}, play again`);
-        return;
-      }
-      if (selectedWord.toLowerCase() === currentTargetWord.toLowerCase()) {
-        if (imgElement) {
-          imgElement.classList.add('correct');
-        }
-        await speak(`Fantastic! Good job, you selected ${selectedWord}. Let's try the next one.`);
-        score += 10;
-        localStorage.setItem('score', score);
-        matchedWords.add(selectedWord);
-        document.getElementById('score').innerText = `Score: ${score}`;
-        await sleep(1000);
-        setupGame();
-      } else {
-        if (imgElement) {
-          imgElement.classList.add('incorrect');
-        }
-        await speak('Oops! Try again');
-        await sleep(2000);
-        if (imgElement) {
-          imgElement.classList.remove('incorrect');
-        }
-      }
-    }
+    // Button references
+    const startGameButton = document.getElementById('startGameButton');
+    const coverPage = document.getElementById('coverPage');
+    const gameContainer = document.getElementById('gameContainer');
+    const playAgainButton = document.getElementById('playAgain');
+    const resetButton = document.getElementById('resetButton');
 
-    document.getElementById('score').innerText = `Score: ${score}`;
-
-    // When "Start Game" is clicked, hide the cover page and show the game.
-    document.getElementById('startGameButton').addEventListener('click', () => {
-      document.getElementById('coverPage').style.display = 'none';
-      document.getElementById('gameContainer').style.display = 'block';
+    // Start game event
+    startGameButton.addEventListener('click', () => {
+      coverPage.style.display = 'none';
+      gameContainer.style.display = 'block';
       setupGame();
     });
 
-    document.getElementById('playAgain').addEventListener('click', setupGame);
+    playAgainButton.addEventListener('click', () => {
+      setupGame();
+      playAgainButton.style.display = 'none';
+    });
+
+    resetButton.addEventListener('click', () => {
+      resetScore();
+    });
+
   </script>
 </body>
 </html>
