@@ -312,7 +312,7 @@
           if (image.word.toLowerCase() === currentTargetWord.toLowerCase()) {
             if (!matchedWords.has(image.word)) {
               matchedWords.add(image.word);
-              score++;
+              score+= 10;
               localStorage.setItem('score', score);
               document.getElementById('score').innerText = `Score: ${score}`;
 
